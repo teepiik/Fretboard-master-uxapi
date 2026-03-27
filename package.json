@@ -1,0 +1,36 @@
+{
+  "name": "fretboard-master-uxapi",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines": {
+    "node": ">=24.13.0 < 25"
+  },
+  "scripts": {
+    "dev": "tsx src/server.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/teepiik/Fretboard-master-uxapi.git"
+  },
+  "keywords": [],
+  "author": "Teemu Piik",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/teepiik/Fretboard-master-uxapi/issues"
+  },
+  "homepage": "https://github.com/teepiik/Fretboard-master-uxapi#readme",
+  "dependencies": {
+    "express": "^5.2.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "supertest": "^7.2.2",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.2"
+  }
+}
