@@ -18,8 +18,8 @@ const enharmonics: Record<string, string> = {
  */
 export function normalizeNote(note: string): string {
   const trimmed = note.trim();
-  // Capitalize first letter, keep rest as-is (e.g. "c#" -> "C#")
-  const n = trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+  // Capitalize the letter, lowercase the accidental (e.g. "c#" -> "C#", "BB" -> "Bb")
+  const n = trimmed.charAt(0).toUpperCase() + trimmed.slice(1).toLowerCase();
   return enharmonics[n] ?? n;
 }
 

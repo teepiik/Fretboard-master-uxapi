@@ -11,7 +11,9 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "lint": "eslint .",
+    "typecheck": "tsc --noEmit -p tsconfig.json"
   },
   "repository": {
     "type": "git",
@@ -25,15 +27,22 @@
   },
   "homepage": "https://github.com/teepiik/Fretboard-master-uxapi#readme",
   "dependencies": {
+    "cors": "^2.8.6",
     "express": "^5.2.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.5.0",
+    "@types/supertest": "^7.2.1",
+    "eslint": "^10.14.0",
+    "globals": "^17.13.0",
     "supertest": "^7.2.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2",
+    "typescript-eslint": "^8.72.1",
     "vitest": "^4.1.2"
   }
 }
