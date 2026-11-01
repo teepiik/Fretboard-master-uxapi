@@ -1,0 +1,357 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Fretboard Master UX API",
+    "version": "1.0.0",
+    "description": "Music theory catalogue (scales, tunings) and note analysis for the Fretboard Master frontend. Fretboard rendering is computed client-side from scale intervals and tuning MIDI numbers."
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "operationId": "getHealth",
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "Service is up",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/theory/scales": {
+      "get": {
+        "operationId": "listScales",
+        "summary": "List available scales with their interval formulas",
+        "responses": {
+          "200": {
+            "description": "Scale catalogue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScaleList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/theory/tunings": {
+      "get": {
+        "operationId": "listTunings",
+        "summary": "List available guitar tunings",
+        "responses": {
+          "200": {
+            "description": "Tuning catalogue",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TuningList"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/theory/analyze": {
+      "post": {
+        "operationId": "analyzeNotes",
+        "summary": "Find chords and scales containing the given notes",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AnalyzeRequest"
+              },
+              "example": {
+                "notes": [
+                  "C",
+                  "E",
+                  "G"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Matching chords and scales",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnalyzeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid input",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NoteName": {
+        "type": "string",
+        "pattern": "^[A-G](#|b)?$",
+        "description": "A note name: natural with optional single sharp or flat.",
+        "example": "F#"
+      },
+      "ScaleId": {
+        "type": "string",
+        "enum": [
+          "major",
+          "dorian",
+          "phrygian",
+          "lydian",
+          "mixolydian",
+          "natural-minor",
+          "locrian",
+          "harmonic-minor",
+          "melodic-minor",
+          "major-pentatonic",
+          "minor-pentatonic",
+          "major-blues",
+          "minor-blues",
+          "whole-tone",
+          "diminished-hw",
+          "diminished-wh"
+        ]
+      },
+      "TuningId": {
+        "type": "string",
+        "enum": [
+          "standard",
+          "drop-d",
+          "dadgad",
+          "open-g"
+        ]
+      },
+      "Scale": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/ScaleId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "intervals": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "description": "Semitone offsets from the root, starting at 0"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "intervals"
+        ]
+      },
+      "ScaleList": {
+        "type": "object",
+        "properties": {
+          "scales": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Scale"
+            }
+          }
+        },
+        "required": [
+          "scales"
+        ]
+      },
+      "Tuning": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/TuningId"
+          },
+          "name": {
+            "type": "string"
+          },
+          "midi": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "minimum": -9007199254740991,
+              "maximum": 9007199254740991
+            },
+            "description": "Open-string MIDI numbers, lowest string first (C4 = 60)"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "midi"
+        ]
+      },
+      "TuningList": {
+        "type": "object",
+        "properties": {
+          "tunings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Tuning"
+            }
+          }
+        },
+        "required": [
+          "tunings"
+        ]
+      },
+      "AnalyzeRequest": {
+        "type": "object",
+        "properties": {
+          "notes": {
+            "minItems": 1,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NoteName"
+            }
+          }
+        },
+        "required": [
+          "notes"
+        ]
+      },
+      "DiatonicChord": {
+        "type": "object",
+        "properties": {
+          "degree": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991,
+            "description": "Scale degree, 1-based"
+          },
+          "triad": {
+            "type": "string"
+          },
+          "seventh": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "degree",
+          "triad",
+          "seventh"
+        ]
+      },
+      "AnalyzeResponse": {
+        "type": "object",
+        "properties": {
+          "input": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Normalized notes (sharps, uppercase)"
+          },
+          "chords": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Chord names that contain all input notes"
+          },
+          "scales": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "diatonicChords": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/DiatonicChord"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "diatonicChords"
+              ]
+            }
+          }
+        },
+        "required": [
+          "input",
+          "chords",
+          "scales"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string"
+          },
+          "details": {
+            "description": "Validation issues, present on 400 responses",
+            "type": "array",
+            "items": {}
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ok"
+            ]
+          },
+          "uptime": {
+            "type": "number"
+          },
+          "timestamp": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "uptime",
+          "timestamp"
+        ]
+      }
+    }
+  }
+}

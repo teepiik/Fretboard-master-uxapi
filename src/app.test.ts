@@ -96,6 +96,42 @@ describe("GET /health", () => {
   });
 });
 
+describe("theory catalogue", () => {
+  it("GET /theory/scales lists scales with ids and intervals", async () => {
+    const res = await request(app).get("/theory/scales");
+    expect(res.status).toBe(200);
+    expect(res.headers["cache-control"]).toMatch(/max-age/);
+    expect(res.body.scales.map((s: { id: string }) => s.id)).toContain("natural-minor");
+    expect(res.body.scales[0]).toMatchObject({ id: "major", name: "Major", intervals: [0, 2, 4, 5, 7, 9, 11] });
+  });
+
+  it("GET /theory/tunings lists tunings with MIDI numbers", async () => {
+    const res = await request(app).get("/theory/tunings");
+    expect(res.status).toBe(200);
+    expect(res.body.tunings[0]).toMatchObject({ id: "standard", midi: [40, 45, 50, 55, 59, 64] });
+  });
+});
+
+describe("OpenAPI", () => {
+  it("serves the spec at /openapi.json", async () => {
+    const res = await request(app).get("/openapi.json");
+    expect(res.status).toBe(200);
+    expect(res.body.openapi).toBe("3.0.3");
+    expect(res.body.paths["/theory/analyze"].post.operationId).toBe("analyzeNotes");
+    expect(res.body.paths["/theory/scales"].get.operationId).toBe("listScales");
+    expect(res.body.paths["/health"].get.operationId).toBe("getHealth");
+    expect(Object.keys(res.body.components.schemas)).toEqual(
+      expect.arrayContaining(["Scale", "ScaleList", "Tuning", "ScaleId", "NoteName", "ErrorResponse"]),
+    );
+  });
+
+  it("serves Swagger UI at /docs", async () => {
+    const res = await request(app).get("/docs/");
+    expect(res.status).toBe(200);
+    expect(res.text).toContain("swagger-ui");
+  });
+});
+
 describe("unknown routes", () => {
   it("returns a JSON 404", async () => {
     const res = await request(app).get("/nope");
