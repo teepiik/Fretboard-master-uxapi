@@ -56,6 +56,7 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars="CORS_ORIGIN=$CORS_ORIGIN" \
             --min-instances=0 \
-            --max-instances=2 \
+            --max-instances=1 \
+            --timeout=10s \
             --quiet
           gcloud run services describe "$SERVICE" --region=${{ vars.GCP_REGION }} --format='value(status.url)'
