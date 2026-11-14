@@ -16,7 +16,6 @@ concurrency:
 env:
   SERVICE: fretboard-uxapi
   IMAGE: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/fretboard/fretboard-uxapi:${{ github.sha }}
-  CORS_ORIGIN: https://fretboard-master-514018.web.app
 
 jobs:
   deploy:
@@ -47,6 +46,8 @@ jobs:
           docker push "$IMAGE"
 
       - name: Deploy to Cloud Run
+        env:
+          CORS_ORIGIN: https://fretboard-master-514018.web.app
         run: |
           gcloud run deploy "$SERVICE" \
             --image="$IMAGE" \
